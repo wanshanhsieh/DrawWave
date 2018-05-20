@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -17,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import static java.lang.String.valueOf;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +35,7 @@ public class BlankFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
     /**
      * debug message
      */
@@ -40,9 +44,7 @@ public class BlankFragment extends Fragment {
     /**
      * graph data
      */
-    ArrayList<String> array_time;
-    ArrayList<String> array_y;
-    ArrayList<String> array_z;
+    static List<DataPair> GraphData;
 
     /**
      * graph drawing
@@ -50,7 +52,6 @@ public class BlankFragment extends Fragment {
     private final Handler mHandler = new Handler();
     private Runnable mTimer;
     private LineGraphSeries<DataPoint> mSeries;
-    private double graphLastXValue = 0d;
     private int graphLastIndex = 0;
 
     public BlankFragment() {
@@ -82,8 +83,6 @@ public class BlankFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        array_time = new ArrayList<String>();
-        array_y = new ArrayList<String>();
     }
 
     @Override
@@ -92,15 +91,7 @@ public class BlankFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_blank, container, false);
         text_showMsg = rootView.findViewById(R.id.text_ShowMsg);
-        // Store time data and y-axis data into ArrayList
-        mParam1 = mParam1.trim();
-        String[] items = mParam1.split("\\.");
-        for (String item : items)
-        {
-            String[] time_y = item.split(",");
-            array_time.add(time_y[0]);
-            array_y.add(time_y[1]);
-        }
+
         // Initialize graph view
         GraphView graph = (GraphView) rootView.findViewById(R.id.graph);
         mSeries = new LineGraphSeries<>();
@@ -118,19 +109,23 @@ public class BlankFragment extends Fragment {
         mTimer = new Runnable() {
             @Override
             public void run() {
-                if(array_time.size() > 0)
+                //text_showMsg.setText("GraphData size = " + String.valueOf(GraphData.size()) + ", Last index = " + String.valueOf(graphLastIndex));
+                //text_showMsg.setText("1: GraphData size = " + String.valueOf(GraphData.size()) + ", Last index = " + String.valueOf(graphLastIndex));
+                if (GraphData.size() > 0)
                 {
-                    String[] time = array_time.toArray(new String[array_time.size()]);
-                    String[] y = array_y.toArray(new String[array_y.size()]);
-                    if(graphLastIndex < array_time.size()) {
-                        mSeries.appendData(new DataPoint((Double.valueOf(time[graphLastIndex])).doubleValue(), (Double.valueOf(y[graphLastIndex])).doubleValue()), true, 40);
+                    //text_showMsg.setText("2: GraphData size = " + String.valueOf(GraphData.size()) + ", Last index = " + String.valueOf(graphLastIndex));
+                    if (graphLastIndex < GraphData.size()) {
+                        text_showMsg.setText(GraphData.get(graphLastIndex).debugx() + " & " + GraphData.get(graphLastIndex).debugy());
+                        mSeries.appendData(new DataPoint(GraphData.get(graphLastIndex).getx(), GraphData.get(graphLastIndex).gety()), true, 40);
+                        //text_showMsg.setText("3: GraphData size = " + String.valueOf(GraphData.size()) + ", Last index = " + String.valueOf(graphLastIndex));
                         graphLastIndex += 1;
                         mHandler.postDelayed(this, 200);
                     }
                 }
+                mHandler.postDelayed(mTimer, 1000);
             }
         };
-        mHandler.postDelayed(mTimer, 1000);
+        mTimer.run();
     }
 
     @Override
@@ -139,27 +134,25 @@ public class BlankFragment extends Fragment {
         super.onPause();
     }
 
-    /**
-     * function for generating random data
-     * @return
-     */
-    private DataPoint[] generateData() {
-        int count = 30;
-        DataPoint[] values = new DataPoint[count];
-        for (int i=0; i<count; i++) {
-            double x = i;
-            double f = mRand.nextDouble()*0.15+0.3;
-            double y = Math.sin(i*f+2) + mRand.nextDouble()*0.3;
-            DataPoint v = new DataPoint(x, y);
-            values[i] = v;
-        }
-        return values;
+    /** GraphData and dataPairList point to the same memory address */
+    public void bindGraphList(List<DataPair> dataPairList)
+    {
+        GraphData = dataPairList;
     }
 
-    double mLastRandom = 2;
-    Random mRand = new Random();
-    private double getRandom() {
-        return mLastRandom += mRand.nextDouble()*0.5 - 0.25;
+    public void onRefresh()
+    {
+        // text_showMsg.setText(String.valueOf(GraphData.size()));
+        /*if (GraphData.size() > 0) {
+            // String[] time = array_time.toArray(new String[array_time.size()]);
+            // String[] y = array_y.toArray(new String[array_y.size()]);
+            while (graphLastIndex < GraphData.size()) {
+                mSeries.appendData(new DataPoint(GraphData.get(graphLastIndex).getX(), GraphData.get(graphLastIndex).getY()), true, 40);
+                graphLastIndex += 1;
+                // mHandler.postDelayed(this, 200);
+            }
+        }*/
+        // text_showMsg.setText("GraphData size = " + String.valueOf(GraphData.size()) + ", Last index = " + String.valueOf(graphLastIndex));
     }
 
 }
