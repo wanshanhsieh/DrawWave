@@ -3,10 +3,13 @@ package com.example.user.drawwave;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +29,7 @@ import static java.lang.String.valueOf;
  * Use the {@link BlankFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BlankFragment extends Fragment {
+public class BlankFragment extends DialogFragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -37,9 +40,10 @@ public class BlankFragment extends Fragment {
     private String mParam2;
 
     /**
-     * debug message
+     * on-screen elements
      */
     TextView text_showMsg;
+    Button button_close;
 
     /**
      * graph data
@@ -79,6 +83,7 @@ public class BlankFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setCancelable(true); // if touch non-window area, no reaction
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -88,17 +93,29 @@ public class BlankFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        /** Inflate the layout for this fragment */
         View rootView = inflater.inflate(R.layout.fragment_blank, container, false);
         text_showMsg = rootView.findViewById(R.id.text_ShowMsg);
+        button_close = rootView.findViewById(R.id.button_Close);
+        getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        // Initialize graph view
+        /** Initialize graph view */
         GraphView graph = (GraphView) rootView.findViewById(R.id.graph);
         mSeries = new LineGraphSeries<>();
         graph.addSeries(mSeries);
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(40);
+        graph.getViewport().setMaxX(20);
+
+        /** press close, reset and close this DialogFragment */
+        button_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                graphLastIndex = 0;
+                GraphData = null;
+                dismiss();
+            }
+        });
 
         return rootView;
     }
@@ -138,21 +155,6 @@ public class BlankFragment extends Fragment {
     public void bindGraphList(List<DataPair> dataPairList)
     {
         GraphData = dataPairList;
-    }
-
-    public void onRefresh()
-    {
-        // text_showMsg.setText(String.valueOf(GraphData.size()));
-        /*if (GraphData.size() > 0) {
-            // String[] time = array_time.toArray(new String[array_time.size()]);
-            // String[] y = array_y.toArray(new String[array_y.size()]);
-            while (graphLastIndex < GraphData.size()) {
-                mSeries.appendData(new DataPoint(GraphData.get(graphLastIndex).getX(), GraphData.get(graphLastIndex).getY()), true, 40);
-                graphLastIndex += 1;
-                // mHandler.postDelayed(this, 200);
-            }
-        }*/
-        // text_showMsg.setText("GraphData size = " + String.valueOf(GraphData.size()) + ", Last index = " + String.valueOf(graphLastIndex));
     }
 
 }

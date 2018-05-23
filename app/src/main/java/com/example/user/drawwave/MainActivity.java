@@ -1,5 +1,9 @@
 package com.example.user.drawwave;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.pm.ConfigurationInfo;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -7,8 +11,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +46,9 @@ public class MainActivity extends AppCompatActivity {
     /**
      * On-screen elements
      */
-    Button button_GenFile, button_DrawWave;
+    Button button_Demo1, button_Demo2;
+    TextView text_GLver;
+    Context mContext;
 
     /**
      * fragment
@@ -46,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager fragManager;
     FragmentTransaction trans;
     BlankFragment graph_Fragment;
+    OpenGLFragment graph3d_Fragment;
 
     /**
      * graph data
@@ -65,16 +76,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        button_GenFile = findViewById(R.id.button_GenFile);
-        button_DrawWave = findViewById(R.id.button_DrawWave);
+        button_Demo1 = findViewById(R.id.button_Demo1);
+        button_Demo2 = findViewById(R.id.button_Demo2);
+        text_GLver = findViewById(R.id.text_GLver);
+        mContext = MainActivity.this;
+        text_GLver.setText("OpenGL version: " + currentGLVersion(mContext));
 
         fragManager = getSupportFragmentManager();
 
         dataPair = new ArrayList<DataPair>();
 
-        /**
-         * set Firebase
-         */
+        /** set Firebase */
         Firebase.setAndroidContext(MainActivity.this);
         /** set Firebase url */
         url = "https://drawwave-613f4.firebaseio.com/DataPair";
@@ -82,28 +94,26 @@ public class MainActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance();
         dataRef = mDatabase.getReference("DataPair");
 
-        /**
-         * Initialize graph fragment
-         */
-        graph_Fragment = BlankFragment.newInstance("a", "b");
-        ((BlankFragment) graph_Fragment).bindGraphList(dataPair);
-        trans = fragManager.beginTransaction();
-        trans.add(R.id.fragment_container, graph_Fragment, "");
-        trans.commit();
+        /** Initialize graph fragment */
+        graph_Fragment = new BlankFragment(); // BlankFragment.newInstance("a", "b");
+        graph3d_Fragment = new OpenGLFragment();
 
-        /**
-         * Press Read File and Draw, read file and print the file content on screen
-         */
-        button_DrawWave.setOnClickListener(new View.OnClickListener(){
+        button_Demo1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                // String text = ReadFromFile("testFiles.txt");
-                // PreProcessingData(text);
-                /* Toast toast = Toast.makeText(MainActivity.this,
-                        String.valueOf(dataPair.size()), Toast.LENGTH_SHORT);
-                toast.show(); */
-                /* pass data into graph_Fragment */
-                ((BlankFragment) graph_Fragment).onRefresh();
+                // trans = fragManager.beginTransaction();
+                // trans.add(R.id.fragment_container, graph_Fragment, "");
+                // trans.commit();
+                ((BlankFragment) graph_Fragment).bindGraphList(dataPair);
+                graph_Fragment.show(getSupportFragmentManager(), "blank_fragment");
+                // ((BlankFragment) graph_Fragment).onRefresh();
+            }
+        });
+
+        button_Demo2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                graph3d_Fragment.show(getSupportFragmentManager(), "OpenGL_fragment");
             }
         });
 
@@ -186,6 +196,14 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return text.toString();
+    }
+
+    public static String currentGLVersion(Context context){
+        ActivityManager am = (ActivityManager)
+                context.getSystemService(Context.ACTIVITY_SERVICE);
+        ConfigurationInfo info = am.getDeviceConfigurationInfo();
+        String currentVersion = Integer.toHexString(info.reqGlEsVersion);
+        return currentVersion;
     }
 
 }

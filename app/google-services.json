@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "196409148264",
+    "firebase_url": "https://drawwave-613f4.firebaseio.com",
+    "project_id": "drawwave-613f4",
+    "storage_bucket": "drawwave-613f4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196409148264:android:94235528338e41ae",
+        "android_client_info": {
+          "package_name": "com.example.user.drawwave"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196409148264-h5ids13048a8mg83qae8isunfs1qo7ts.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.user.drawwave",
+            "certificate_hash": "05c2808764a01f5fd1d46cee332616f8696fb08d"
+          }
+        },
+        {
+          "client_id": "196409148264-ctk53uthiuangd2pbftv0qd5co9r1n2r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmtqCJXYXgCvaeGHlqNRoN1vIDIG8Z_oY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196409148264-ctk53uthiuangd2pbftv0qd5co9r1n2r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
